@@ -205,3 +205,14 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Snowflake / data files
+*.csv
+*.gz
+*.parquet
+*.json
+
+# dbt artifacts (if dbt lives in same repo)
+target/
+dbt_packages/
+logs/
