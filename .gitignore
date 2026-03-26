@@ -216,3 +216,23 @@ __marimo__/
 target/
 dbt_packages/
 logs/
+
+# Keys (VERY IMPORTANT)
+rsa_key.pem
+rsa_key.pub
+
+# Python virtual environment
+venv/
+
+# Python cache
+__pdycache__/
+*.pyc
+
+# Mac system files
+.DS_Store
+
+# Pip / install scripts
+get-pip.py
+
+# Pycharm 
+.idea/
