@@ -5,10 +5,21 @@ from config import TABLE_CONFIG
 from dotenv import load_dotenv
 from pathlib import Path
 from cryptography.hazmat.primitives import serialization
+import logging
+
+# Logging setup
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Load env
 env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(dotenv_path=env_path)
+
+database = os.getenv("SNOWFLAKE_DATABASE")
+schema = os.getenv("SNOWFLAKE_SCHEMA")
 
 project_root = Path(__file__).parent.parent
 key_path = project_root / os.getenv("PRIVATE_KEY_PATH")
@@ -20,9 +31,14 @@ if len(sys.argv) < 2:
 table_name = sys.argv[1]
 
 if table_name not in TABLE_CONFIG:
+    logger.error(f"Invalid table name: {table_name}")
     raise ValueError(f"Table '{table_name}' not found in config")
 
 config = TABLE_CONFIG[table_name]
+
+logger.info(f"Starting ingestion for table: {table_name}")
+
+logger.info("Loading private key...")
 
 # Load private key
 with open("rsa_key.pem", "rb") as key:
@@ -37,14 +53,16 @@ pkb = p_key.private_bytes(
     encryption_algorithm=serialization.NoEncryption(),
 )
 
+logger.info("Connecting to Snowflake...")
+
 # Connect
 conn = snowflake.connector.connect(
     user=os.getenv("SNOWFLAKE_USER"),
     account=os.getenv("SNOWFLAKE_ACCOUNT"),
     private_key=pkb,
     warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
-    database=os.getenv("SNOWFLAKE_DATABASE"),
-    schema=os.getenv("SNOWFLAKE_SCHEMA"),
+    database=database,
+    schema=schema,
 )
 
 cs = conn.cursor()
@@ -54,7 +72,7 @@ try:
     stage = config["stage"]
     columns = config["columns"]
 
-    print(f"Uploading {table_name}...")
+    logger.info(f"Uploading file to stage: {file_path}")
 
     # PUT (upload file)
     cs.execute(f"""
@@ -63,7 +81,7 @@ try:
         OVERWRITE=TRUE;
     """)
 
-    print(f"Loading {table_name} into Snowflake...")
+    logger.info("File uploaded successfully")
 
     # Build column list
     column_list = ", ".join(columns + ["loaded_at"])
@@ -74,7 +92,7 @@ try:
 
     # COPY INTO
     cs.execute(f"""
-        COPY INTO OLIST_RAW.OLIST.{table_name} ({column_list})
+        COPY INTO {database}.{schema}.{table_name} ({column_list})
         FROM (
             SELECT
                 {select_cols}
@@ -88,8 +106,17 @@ try:
         ON_ERROR = 'CONTINUE';
     """)
 
-    print(f"{table_name} ingestion complete 🚀")
+    cs.execute(f"SELECT COUNT(*) FROM {database}.{schema}.{table_name}")
+    row_count = cs.fetchone()[0]
+    logger.info(f"Total rows in {table_name}: {row_count}")
+
+    logger.info(f"{table_name} ingestion complete 🚀")
+
+except Exception as e:
+    logger.error(f"Ingestion failed for {table_name}: {str(e)}")
+    raise
 
 finally:
+    logger.info("Closing Snowflake connection")
     cs.close()
     conn.close()
