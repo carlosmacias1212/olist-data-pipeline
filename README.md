@@ -8,9 +8,9 @@ Raw e-commerce data is ingested into Snowflake, transformed into analytics-ready
 ## Architecture
 
 Raw CSV Data <br>
-    ↓
+    ↓<br>
 Python Ingestion (PUT + COPY INTO)<br>
-    ↓
+    ↓<br>
 Snowflake Raw Layer (OLIST_RAW.OLIST)<br>
     ↓
 dbt Transformations (staging → intermediate → marts)
