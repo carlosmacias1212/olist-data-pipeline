@@ -12,13 +12,13 @@ Raw CSV Data <br>
 Python Ingestion (PUT + COPY INTO)<br>
     ↓<br>
 Snowflake Raw Layer (OLIST_RAW.OLIST)<br>
-    ↓
-dbt Transformations (staging → intermediate → marts)
-    ↓
-Analytics Layer (OLIST_ANALYTICS.DBT_CMACIAS)
-    ↓
-Airflow Orchestration (DAG)
-    ↓
+    ↓<br>
+dbt Transformations (staging → intermediate → marts)<br>
+    ↓<br>
+Analytics Layer (OLIST_ANALYTICS.DBT_CMACIAS)<br>
+    ↓<br>
+Airflow Orchestration (DAG)<br>
+    ↓<br>
 dbt Tests + Logging
 
 ---
