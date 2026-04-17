@@ -7,18 +7,18 @@ Raw e-commerce data is ingested into Snowflake, transformed into analytics-ready
 
 ## Architecture
 ```
-Raw CSV Data <br>
-    ↓<br>
-Python Ingestion (PUT + COPY INTO)<br>
-    ↓<br>
-Snowflake Raw Layer (OLIST_RAW.OLIST)<br>
-    ↓<br>
-dbt Transformations (staging → intermediate → marts)<br>
-    ↓<br>
-Analytics Layer (OLIST_ANALYTICS.DBT_CMACIAS)<br>
-    ↓<br>
-Airflow Orchestration (DAG)<br>
-    ↓<br>
+Raw CSV Data 
+    ↓
+Python Ingestion (PUT + COPY INTO)
+    ↓
+Snowflake Raw Layer (OLIST_RAW.OLIST)
+    ↓
+dbt Transformations (staging → intermediate → marts)
+    ↓
+Analytics Layer (OLIST_ANALYTICS.DBT_CMACIAS)
+    ↓
+Airflow Orchestration (DAG)
+    ↓
 dbt Tests + Logging
 ```
 ---
@@ -34,7 +34,7 @@ dbt Tests + Logging
 ---
 
 ## 📁 Repository Structure
-
+```
 olist-data-pipeline/
 ├── ingestion/
 │   ├── ingest_data.py         #Generic ingestion script
@@ -51,7 +51,7 @@ olist-data-pipeline/
 ├── .env                       #Environment variables (not committed)
 ├── requirements.txt
 └── README.md
-
+```
 ---
 
 ## Pipeline Flow
