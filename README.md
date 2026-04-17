@@ -6,7 +6,7 @@ Raw e-commerce data is ingested into Snowflake, transformed into analytics-ready
 ---
 
 ## Architecture
-
+```
 Raw CSV Data <br>
     ↓<br>
 Python Ingestion (PUT + COPY INTO)<br>
@@ -20,7 +20,7 @@ Analytics Layer (OLIST_ANALYTICS.DBT_CMACIAS)<br>
 Airflow Orchestration (DAG)<br>
     ↓<br>
 dbt Tests + Logging
-
+```
 ---
 
 ## Tech Stack
