@@ -37,18 +37,18 @@ dbt Tests + Logging
 
 olist-data-pipeline/
 ├── ingestion/
-│   ├── ingest_data.py        # Generic ingestion script
-│   ├── config.py             # Table-specific configs
-│   └── data/                 # Source CSV files
+│   ├── ingest_data.py         Generic ingestion script
+│   ├── config.py              Table-specific configs
+│   └── data/                  Source CSV files
 │
 ├── dbt/
-│   └── olist_dbt_project/    # dbt project (staging, intermediate, marts)
+│   └── olist_dbt_project/     dbt project (staging, intermediate, marts)
 │
 ├── orchestration/
 │   └── airflow/
-│       └── olist_pipeline.py # Airflow DAG
+│       └── olist_pipeline.py  Airflow DAG
 │
-├── .env                      # Environment variables (not committed)
+├── .env                       Environment variables (not committed)
 ├── requirements.txt
 └── README.md
 
