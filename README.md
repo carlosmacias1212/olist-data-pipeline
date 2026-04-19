@@ -1,15 +1,19 @@
-# Olist End-to-End ELT Pipeline
+# Olist Cloud-Enabled ELT Pipeline (AWS S3 + Snowflake + dbt + Airflow)
 
-This project simulates a production-style ELT pipeline using Python, Snowflake, dbt, and Airflow.  
-Raw e-commerce data is ingested into Snowflake, transformed into analytics-ready models with dbt, and orchestrated through Airflow with logging, retries, and automated testing.
+This project simulates a production-style ELT pipeline using Python, AWS S3, Snowflake, dbt, and Airflow.  
+Raw e-commerce data is ingested into an S3-based raw storage layer, loaded into Snowflake via an external stage, transformed into analytics-ready models with dbt, and orchestrated through Airflow with logging, retries, and automated testing.
 
 ---
 
 ## Architecture
 ```
-Raw CSV Data 
+Raw CSV Data
     ↓
-Python Ingestion (PUT + COPY INTO)
+Python Ingestion Script
+    ↓
+AWS S3 Raw Layer (partitioned file-based storage)
+    ↓
+Snowflake External Stage + COPY INTO
     ↓
 Snowflake Raw Layer (OLIST_RAW.OLIST)
     ↓
@@ -25,10 +29,11 @@ dbt Tests + Logging
 
 ## Tech Stack
 
-- Python — ingestion scripts and pipeline logic  
-- Snowflake — cloud data warehouse (raw + analytics layers)  
+- Python — ingestion scripts, pipeline logic, and S3 integration  
+- AWS S3 — raw file-based storage layer for scalable data ingestion  
+- Snowflake — cloud data warehouse (raw + analytics layers, external stage loading)  
 - dbt Core — transformations, testing, and incremental models  
-- Airflow — workflow orchestration and scheduling  
+- Airflow — workflow orchestration, scheduling, retries, and dependencies  
 - dotenv / environment variables — configuration management  
 
 ---
@@ -57,9 +62,10 @@ olist-data-pipeline/
 ## Pipeline Flow
 
 1. Ingestion  
-   - Python script uploads CSV files to Snowflake using PUT  
-   - Data is loaded using COPY INTO  
-   - A loaded_at timestamp is added for incremental processing  
+   - Python script uploads CSV files to AWS S3 using a partitioned structure (`load_date`)  
+   - Data is stored in a raw file-based storage layer (data lake pattern)  
+   - Snowflake loads data using an external stage and `COPY INTO`  
+   - A `loaded_at` timestamp is added for incremental processing 
 
 2. Transformation  
    - dbt builds:
@@ -89,8 +95,12 @@ olist-data-pipeline/
 - Generic ingestion framework  
   - Single script supports multiple tables via configuration  
 
-- Snowflake-native loading  
-  - Uses PUT + COPY INTO pattern  
+- Cloud-based ingestion architecture  
+  - Uses AWS S3 as a raw storage layer  
+  - Loads data into Snowflake via external stage and `COPY INTO`  
+
+- Partitioned file-based storage  
+  - Organizes data in S3 using `load_date` for scalable ingestion and incremental processing  
 
 - Incremental dbt models  
   - Processes only new data using loaded_at  
@@ -183,16 +193,31 @@ olist_pipeline
 ## Example Log Output
 
 INFO | Starting ingestion for table: orders  
-INFO | Uploading file to stage...  
+INFO | Uploading file to S3...
+INFO | Loading data from external stage...  
 INFO | Loading data into table...  
 INFO | Total rows in orders: 99,445  
 INFO | orders ingestion complete 🚀  
 
 ---
+## Data Storage Design
+
+The pipeline uses a file-based storage pattern in AWS S3 to simulate a modern data lake architecture.
+
+Example structure:
+s3://bucket-name/raw/orders/load_date=2026-04-17/orders.csv
+s3://bucket-name/raw/customers/load_date=2026-04-17/customers.csv
+
+This structure enables:
+- scalable ingestion patterns  
+- partition-based processing  
+- separation of storage and compute  
 
 ## Key Learnings
 
-- Built a full ELT pipeline from ingestion to analytics layer  
+- Built a full ELT pipeline from ingestion to analytics layer
+- Implemented a cloud-based ingestion layer using AWS S3 and Snowflake external stages  
+- Applied file-based storage and partitioning concepts to simulate data lake architecture  
 - Implemented incremental data processing for efficiency  
 - Orchestrated workflows using Airflow with retries and dependencies  
 - Added logging and validation to improve observability  
@@ -204,7 +229,7 @@ INFO | orders ingestion complete 🚀
 
 - Add alerting (Slack/email) for failed pipelines  
 - Containerize with Docker  
-- Deploy Airflow in a cloud environment  
+- Replace AWS key-based access with IAM roles / Snowflake storage integration  
 - Add data freshness monitoring  
 - Integrate with external APIs instead of static CSVs  
 
