@@ -10,8 +10,8 @@ TABLE_CONFIG = {
             "order_delivered_customer_date",
             "order_estimated_delivery_date",
         ],
-        "stage": "@OLIST_RAW.OLIST.ingestion_stage",
         "file_path": "data/orders.csv",
+        "s3_key_prefix": "raw/orders",
     },
     "customers": {
         "columns": [
@@ -21,7 +21,7 @@ TABLE_CONFIG = {
             "customer_city",
             "customer_state",
         ],
-        "stage": "@OLIST_RAW.OLIST.ingestion_stage",
         "file_path": "data/customers.csv",
+        "s3_key_prefix": "raw/customers",
     }
 }
